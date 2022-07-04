@@ -1,10 +1,12 @@
-# README
+# Simple authentication example with JWT
 
-## How to run
-1. Create .envrc file with the following content
+## How to
+1. Clone the repo
+2. `go mod tidy` to install dependencies
+3. Create .envrc file for your environment variables
 ```
-    DSN=postgres://<db_user>:<db_pass>@<db_host>/<db_name>
-    JWT_SECRET=<random words>
+export DSN=postgres://<db_user>:<db_pass>@<db_host>/<db_name>
+export JWT_SECRET=<random words>
 ```
-2. Open terminal and type `make start`
+4. `make start` to start the application
 
