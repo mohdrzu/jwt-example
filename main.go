@@ -27,7 +27,9 @@ func main() {
 	r.GET("/private", Authorized(), private)
 
 	err := r.Run(":9000")
-	log.Fatalln(err)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func index(c *gin.Context) {
