@@ -65,8 +65,8 @@ export JWT_SECRET=<random words>
   _response_
   {
     "data": {
-        "username": "zulman",
-        "email": "zulman@gmail.com",
+        "username": "userthree",
+        "email": "userthree@gmail.com",
         "Photo": [
             {
                 "ID": 3,
