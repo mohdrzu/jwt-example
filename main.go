@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mouhdrez/jwt-example/models"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
@@ -24,7 +25,8 @@ func main() {
 	r.GET("/", index)
 	r.POST("/register", register)
 	r.POST("/login", login)
-	r.GET("/private", Authorized(), private)
+	r.GET("/photos", Authorized(), getPhoto)
+	r.POST("/photos", Authorized(), createPhoto)
 
 	err := r.Run(":9000")
 	if err != nil {
@@ -39,7 +41,7 @@ func index(c *gin.Context) {
 }
 
 func register(c *gin.Context) {
-	var req Register
+	var req models.Register
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -48,11 +50,11 @@ func register(c *gin.Context) {
 		return
 	}
 
-	var newUser User
+	var newUser models.User
 	// Hash password
 	hashedPass, _ := newUser.HashPassword(req.Password)
 
-	newUser = User{
+	newUser = models.User{
 		Username: req.Username,
 		Email:    req.Email,
 		Password: hashedPass,
@@ -74,7 +76,7 @@ func register(c *gin.Context) {
 }
 
 func login(c *gin.Context) {
-	var req Login
+	var req models.Login
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -83,7 +85,7 @@ func login(c *gin.Context) {
 		return
 	}
 
-	var user User
+	var user models.User
 	err := DB.Debug().Where("email", req.Email).Find(&user).Error
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
@@ -109,10 +111,76 @@ func login(c *gin.Context) {
 	})
 }
 
-func private(c *gin.Context) {
+func getPhoto(c *gin.Context) {
 	email, _ := c.Get("email")
+
+	var user models.User
+	err := DB.Debug().Where("email", email).First(&user).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "user not found",
+		})
+
+		return
+	}
+
+	var photos []models.Photo
+	err = DB.Debug().Where("user_id", user.ID).Find(&photos).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "user not found",
+		})
+
+		return
+	}
+
+	res := models.UserPhotoResponse{
+		Username: user.Username,
+		Email:    user.Email,
+		Photo:    photos,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"msg":  "private route",
-		"user": email,
+		"data": res,
+	})
+}
+
+func createPhoto(c *gin.Context) {
+	email, _ := c.Get("email")
+
+	var req models.Photo
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+	var user models.User
+	err := DB.Debug().Where("email", email).First(&user).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "user not found",
+		})
+
+		return
+	}
+
+	newPhoto := models.Photo{
+		UserID: user.ID,
+		Url:    req.Url,
+	}
+
+	err = DB.Debug().Create(&newPhoto).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "photo successfully created",
 	})
 }

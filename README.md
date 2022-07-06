@@ -34,7 +34,7 @@ export JWT_SECRET=<random words>
 
   _response_
   {
-    "msg": "user successfully registered"
+     "msg": "user successfully registered"
   }
 ```
 
@@ -55,7 +55,7 @@ export JWT_SECRET=<random words>
   }
 ```
 
-#### `GET http://localhost:9000/private`
+#### `GET http://localhost:9000/photos`
 
 | Header             | Description    |
 |:-------------------|:---------------|
@@ -64,7 +64,45 @@ export JWT_SECRET=<random words>
 ```http
   _response_
   {
-    "msg": "private route",
-    "user": "userone@gmail.com"
+    "data": {
+        "username": "zulman",
+        "email": "zulman@gmail.com",
+        "Photo": [
+            {
+                "ID": 3,
+                "CreatedAt": "2022-07-06T09:13:48.56538+07:00",
+                "UpdatedAt": "2022-07-06T09:13:48.56538+07:00",
+                "DeletedAt": null,
+                "UserID": 1,
+                "Url": "https://i.pravatar.cc/150?img=3"
+            },
+            {
+                "ID": 4,
+                "CreatedAt": "2022-07-06T09:14:09.960233+07:00",
+                "UpdatedAt": "2022-07-06T09:14:09.960233+07:00",
+                "DeletedAt": null,
+                "UserID": 1,
+                "Url": "https://i.pravatar.cc/150?img=2"
+            }
+        ]
+    }
+    }
+```
+
+#### `POST http://localhost:9000/photos`
+
+| Header             | Description    |
+|:-------------------|:---------------|
+| `Authorization`    | Your JWT Token |
+
+```http
+  _request_
+  {
+      "url": "https://i.pravatar.cc/150?img=1"
+  }
+  
+  _response_
+  {
+    "msg": "photo successfully created"
   }
 ```

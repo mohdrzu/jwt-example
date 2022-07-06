@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/mouhdrez/jwt-example/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
@@ -14,7 +15,7 @@ func GetConnection() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&User{})
+	err = db.AutoMigrate(&models.User{}, &models.Photo{})
 
 	if err != nil {
 		return nil, err
